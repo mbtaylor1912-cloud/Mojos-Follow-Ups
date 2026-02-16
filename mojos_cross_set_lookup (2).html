@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mojo's Cross Set - Lottery Lookup Tool</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0a0a0a;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(192, 192, 192, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(169, 169, 169, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(192, 192, 192, 0.03) 2px,
+                    rgba(192, 192, 192, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Floating lottery balls animation */
+        .lottery-ball {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 
+                0 5px 15px rgba(0,0,0,0.5),
+                inset -5px -5px 10px rgba(0,0,0,0.3),
+                inset 5px 5px 10px rgba(255,255,255,0.1);
+            z-index: 0;
+            animation: float 20s infinite ease-in-out;
+            opacity: 0.3;
+        }
+
+        .lottery-ball::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent);
+            border-radius: 50%;
+        }
+
+        .ball-1 { 
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #000;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+            animation-duration: 25s;
+        }
+        
+        .ball-2 { 
+            background: linear-gradient(135deg, #E8E8E8 0%, #D3D3D3 100%);
+            color: #000;
+            top: 70%;
+            left: 10%;
+            animation-delay: 3s;
+            animation-duration: 22s;
+        }
+        
+        .ball-3 { 
+            background: linear-gradient(135deg, #B8B8B8 0%, #9E9E9E 100%);
+            color: white;
+            top: 30%;
+            right: 8%;
+            animation-delay: 6s;
+            animation-duration: 28s;
+        }
+        
+        .ball-4 { 
+            background: linear-gradient(135deg, #D8D8D8 0%, #BEBEBE 100%);
+            color: #000;
+            top: 80%;
+            right: 15%;
+            animation-delay: 9s;
+            animation-duration: 24s;
+        }
+
+        .ball-5 { 
+            background: linear-gradient(135deg, #A0A0A0 0%, #888888 100%);
+            color: white;
+            top: 50%;
+            right: 5%;
+            animation-delay: 12s;
+            animation-duration: 26s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(30px, -50px) rotate(90deg);
+            }
+            50% {
+                transform: translate(-20px, -80px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-40px, -30px) rotate(270deg);
+            }
+        }
+
+        /* Sparkling diamonds */
+        .diamond {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #C0C0C0 0%, #FFF 50%, #C0C0C0 100%);
+            transform: rotate(45deg);
+            position: relative;
+            animation: sparkle 2s infinite;
+            margin: 0 4px;
+        }
+
+        .diamond::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 4px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 8px solid #C0C0C0;
+            transform: rotate(-45deg);
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 1;
+                transform: rotate(45deg) scale(1);
+                filter: brightness(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: rotate(45deg) scale(1.2);
+                filter: brightness(1.5);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.8),
+                0 0 0 1px rgba(192, 192, 192, 0.2),
+                inset 0 1px 0 rgba(192, 192, 192, 0.1);
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                #C0C0C0 20%,
+                #E8E8E8 50%,
+                #C0C0C0 80%,
+                transparent 100%
+            );
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            color: #C0C0C0;
+            padding: 50px 30px;
+            text-align: center;
+            border-bottom: 2px solid rgba(192, 192, 192, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(192, 192, 192, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 
+                0 0 20px rgba(192, 192, 192, 0.5),
+                0 0 40px rgba(192, 192, 192, 0.3),
+                2px 2px 4px rgba(0,0,0,0.8);
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #E8E8E8, #C0C0C0, #E8E8E8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+            100% { filter: brightness(1); }
+        }
+
+        .header p {
+            font-size: 1.2em;
+            font-weight: 300;
+            color: #A8A8A8;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .header .stars {
+            font-size: 2.5em;
+            margin: 15px 0;
+            color: #C0C0C0;
+            text-shadow: 0 0 10px rgba(192, 192, 192, 0.8);
+        }
+
+        /* Lottery ball decorations in header */
+        .header-ball {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 2em;
+            box-shadow: 
+                0 8px 20px rgba(0,0,0,0.6),
+                inset -5px -5px 15px rgba(0,0,0,0.4),
+                inset 5px 5px 15px rgba(255,255,255,0.2);
+            animation: headerBallFloat 4s ease-in-out infinite;
+        }
+
+        .header-ball::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), transparent);
+            border-radius: 50%;
+        }
+
+        .header-ball-left {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #000;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+        }
+
+        .header-ball-right {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #000;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            animation-delay: 2s;
+        }
+
+        @keyframes headerBallFloat {
+            0%, 100% {
+                transform: translateY(-50%) translateX(0);
+            }
+            50% {
+                transform: translateY(-50%) translateX(10px);
+            }
+        }
+
+        .search-section {
+            padding: 40px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-bottom: 1px solid rgba(192, 192, 192, 0.1);
+            position: relative;
+        }
+
+        .search-section::before,
+        .search-section::after {
+            content: '💎';
+            position: absolute;
+            font-size: 3em;
+            opacity: 0.15;
+            animation: pulse 3s infinite;
+        }
+
+        .search-section::before {
+            top: 20px;
+            left: 30px;
+        }
+
+        .search-section::after {
+            bottom: 20px;
+            right: 30px;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.15;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.3;
+            }
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 18px 25px;
+            font-size: 1.2em;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            background: #0a0a0a;
+            border: 2px solid rgba(192, 192, 192, 0.3);
+            border-radius: 12px;
+            color: #C0C0C0;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 0 2px 10px rgba(0,0,0,0.5),
+                0 0 0 rgba(192, 192, 192, 0);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(169, 169, 169, 0.5);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #C0C0C0;
+            box-shadow: 
+                inset 0 2px 10px rgba(0,0,0,0.5),
+                0 0 20px rgba(192, 192, 192, 0.3);
+            background: #121212;
+        }
+
+        .search-box button {
+            padding: 18px 40px;
+            font-size: 1.2em;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #0a0a0a;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 
+                0 4px 15px rgba(192, 192, 192, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-box button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .search-box button:hover::before {
+            left: 100%;
+        }
+
+        .search-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 25px rgba(192, 192, 192, 0.6),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .search-box button:active {
+            transform: translateY(0);
+        }
+
+        .tabs {
+            display: flex;
+            background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+            padding: 0 30px;
+            gap: 5px;
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(192, 192, 192, 0.2);
+        }
+
+        .tab {
+            padding: 18px 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: #888;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #C0C0C0, #E8E8E8);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .tab:hover {
+            color: #C0C0C0;
+        }
+
+        .tab:hover::after {
+            width: 80%;
+        }
+
+        .tab.active {
+            color: #C0C0C0;
+            background: linear-gradient(180deg, transparent 0%, rgba(192, 192, 192, 0.05) 100%);
+        }
+
+        .tab.active::after {
+            width: 100%;
+        }
+
+        .content {
+            padding: 40px;
+            background: #0a0a0a;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #1a1a1a 0%, #151515 100%);
+            border: 1px solid rgba(192, 192, 192, 0.2);
+            border-left: 4px solid #C0C0C0;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(192, 192, 192, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateX(5px);
+            border-left-width: 6px;
+            box-shadow: 
+                0 6px 20px rgba(0,0,0,0.7),
+                0 0 30px rgba(192, 192, 192, 0.1),
+                inset 0 1px 0 rgba(192, 192, 192, 0.1);
+        }
+
+        .result-card h3 {
+            color: #C0C0C0;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(192, 192, 192, 0.3);
+        }
+
+        .number-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .number-badge {
+            background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 2px solid rgba(192, 192, 192, 0.4);
+            font-weight: 700;
+            color: #C0C0C0;
+            font-size: 1.1em;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 2px 8px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(192, 192, 192, 0.1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .number-badge:hover {
+            background: linear-gradient(145deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #0a0a0a;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 
+                0 4px 15px rgba(192, 192, 192, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #0a0a0a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #C0C0C0;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(192, 192, 192, 0.3);
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(192, 192, 192, 0.1);
+            color: #ccc;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .data-table tr {
+            transition: background 0.3s ease;
+        }
+
+        .data-table tr:hover {
+            background: rgba(192, 192, 192, 0.05);
+        }
+
+        .data-table tr td:first-child {
+            color: #A8A8A8;
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: #0a0a0a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .info-text {
+            color: #888;
+            font-style: italic;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            font-size: 1.3em;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #C0C0C0;
+            padding: 20px 25px;
+            border-radius: 12px 12px 0 0;
+            font-size: 1.4em;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border: 1px solid rgba(192, 192, 192, 0.3);
+            border-bottom: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .category-content {
+            background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+            padding: 25px;
+            border: 1px solid rgba(192, 192, 192, 0.2);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                padding: 0 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .number-badge {
+                font-size: 0.95em;
+                padding: 10px 15px;
+            }
+
+            .header-ball {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+
+            .header-ball-left {
+                left: 20px;
+            }
+
+            .header-ball-right {
+                right: 20px;
+            }
+
+            .lottery-ball {
+                width: 40px;
+                height: 40px;
+                font-size: 1em;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #C0C0C0 0%, #A8A8A8 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #A8A8A8 0%, #C0C0C0 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating lottery balls in background -->
+    <div class="lottery-ball ball-1">7</div>
+    <div class="lottery-ball ball-2">3</div>
+    <div class="lottery-ball ball-3">9</div>
+    <div class="lottery-ball ball-4">5</div>
+    <div class="lottery-ball ball-5">8</div>
+
+    <div class="container">
+        <div class="header">
+            <!-- Header lottery balls -->
+            <div class="header-ball header-ball-left">$</div>
+            <div class="header-ball header-ball-right">$</div>
+            
+            <div class="stars">★ ★ ★</div>
+            <h1>MOJO'S CROSS SET</h1>
+            <p><span class="diamond"></span> Premium Lottery Intelligence System <span class="diamond"></span></p>
+            <div class="stars">★ ★ ★</div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Enter a number (e.g., 123, 5678, 000)..." maxlength="4">
+                <button onclick="searchNumber()">🔍 Search</button>
+            </div>
+            <div id="searchResults"></div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('triple-triggers')">Triple Triggers</button>
+            <button class="tab" onclick="switchTab('pick3-followup')">Pick 3 Follow-Up</button>
+            <button class="tab" onclick="switchTab('pick4-sets')">Pick 4 Sets</button>
+            <button class="tab" onclick="switchTab('all-data')">All Data</button>
+        </div>
+
+        <div class="content">
+            <div id="triple-triggers" class="tab-content active">
+                <div class="category-section">
+                    <div class="category-title">Triple Triggers - Related Number Sets</div>
+                    <div class="category-content">
+                        <p class="info-text">When a triple digit appears, these are the related numbers that may follow:</p>
+                        <div id="tripleTriggersContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pick3-followup" class="tab-content">
+                <div class="category-section">
+                    <div class="category-title">Pick 3 Follow-Up Sets</div>
+                    <div class="category-content">
+                        <p class="info-text">When one number shows, another follows within 3 draws:</p>
+                        <div id="pick3FollowupContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pick4-sets" class="tab-content">
+                <div class="category-section">
+                    <div class="category-title">Pick 4 Sets That Play Together</div>
+                    <div class="category-content">
+                        <p class="info-text">Common Pick 4 number sets with timing patterns:</p>
+                        <div id="pick4SetsContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="all-data" class="tab-content">
+                <div class="category-section">
+                    <div class="category-title">Complete Data Reference</div>
+                    <div class="category-content">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Trigger/Pattern</th>
+                                    <th>Related Numbers</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allDataContent"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure for all lottery information
+        const lotteryData = {
+            tripleTrigers: {
+                "000": ["005", "1500", "059"],
+                "111": ["611", "122", "014", "614", "119"],
+                "222": ["019", "321", "112", "166", "227", "277", "777"],
+                "333": ["100", "500", "300", "188", "338"],
+                "444": ["134", "114", "144", "911", "440", "555"],
+                "555": ["045", "338", "500", "505", "870", "000", "444"],
+                "666": ["569", "996", "669", "369", "111"],
+                "777": ["267", "678", "227", "772", "222", "007", "150"],
+                "888": ["388", "358", "378", "858", "823"],
+                "999": ["019", "222", "689", "369", "669", "996"]
+            },
+            pick3FollowUp: [
+                {trigger: "899", followUp: ["599", "088", "101", "000"]},
+                {trigger: "447", followUp: ["444", "031", "077", "127"]},
+                {trigger: "113", followUp: ["500", "015", "470", "297"]},
+                {trigger: "657", followUp: ["775", "037", "057", "021", "868"]},
+                {trigger: "080", followUp: ["444", "012", "069", "003", "333"]},
+                {trigger: "240", followUp: ["245", "188", "100", "500", "333"]},
+                {trigger: "088", followUp: ["771", "662", "119", "115", "446", "466"]},
+                {trigger: "467", followUp: ["947", "587", "811", "100", "800", "834"]},
+                {trigger: "016", followUp: ["026", "300", "017", "073", "087", "550"]},
+                {trigger: "026", followUp: ["814", "022", "013", "247", "100", "099"]},
+                {trigger: "288", followUp: ["588", "000", "226", "662", "771", "277"]},
+                {trigger: "388", followUp: ["588", "888", "033", "933", "399", "133"]},
+                {trigger: "216", followUp: ["226", "755"]},
+                {trigger: "131", followUp: ["911", "717"]},
+                {trigger: "229", followUp: ["212", "112", "887", "889"]},
+                {trigger: "200", followUp: ["400", "119", "933", "104"]},
+                {trigger: "134", followUp: ["304", "965", "189", "990"]},
+                {trigger: "117", followUp: ["077", "885", "388", "007"]},
+                {trigger: "116", followUp: ["166", "144", "114", "106"]},
+                {trigger: "717", followUp: ["212", "242", "229", "227"]},
+                {trigger: "299", followUp: ["199", "177", "955", "995"]},
+                {trigger: "505", followUp: ["525", "252", "215", "715"]},
+                {trigger: "066", followUp: ["166", "366", "466", "566"]},
+                {trigger: "930", followUp: ["630", "815", "336", "366"]},
+                {trigger: "483", followUp: ["835", "488", "448", "048"]},
+                {trigger: "800", followUp: ["500", "858", "882", "330"]},
+                {trigger: "170", followUp: ["037", "173", "087", "505", "555"]},
+                {trigger: "159", followUp: ["123", "127", "700", "400", "155"]},
+                {trigger: "133", followUp: ["188", "868", "886", "068", "186"]},
+                {trigger: "977", followUp: ["997", "449", "499", "477", "447"]},
+                {trigger: "127", followUp: ["123", "159", "155", "004", "007"]},
+                {trigger: "033", followUp: ["288", "885", "800", "500", "888"]},
+                {trigger: "828", followUp: ["878", "789", "000", "444", "777", "999"]},
+                {trigger: "835", followUp: ["834", "844", "884", "048", "095", "195"]},
+                {trigger: "013", followUp: ["099", "100", "900", "079", "007", "770"]},
+                {trigger: "109", followUp: ["855", "336", "933", "552", "222", "999"]},
+                {trigger: "112", followUp: ["166", "222", "666", "122", "111", "116"]},
+                {trigger: "057", followUp: ["066", "088", "077", "069", "078", "968", "977"]},
+                {trigger: "934", followUp: ["011", "202", "899", "552", "811", "776", "226", "844", "800", "933"]}
+            ],
+            pick4Sets: [
+                {pattern: "5678 triggers any one of these", numbers: ["9930", "3317", "3310", "4848", "8890", "8860", "3660"]},
+                {pattern: "3317, 1330, and 9880 seem to follow quickly", numbers: []},
+                {pattern: "0378, 0375, 9940, 7760, 7720", numbers: []},
+                {pattern: "1145, 1550, 4610, 1112 follow each other", numbers: []},
+                {pattern: "3360, 3660, 9220, 7880 consistently follow", numbers: []},
+                {pattern: "8110, 8340 consistently follow", numbers: []},
+                {pattern: "3022 is a repeat ball", numbers: []},
+                {pattern: "6022, 9022 will follow 3022 within 5 days", numbers: []},
+                {pattern: "Consistently come within 5 days of each other", numbers: ["6634", "6692", "6647"]},
+                {pattern: "This set is not consistent but it does come", numbers: ["9033", "3030", "3000"]},
+                {pattern: "This set has multiple hits", numbers: ["1336", "6618", "1886", "1663", "8861", "brings 0016 or 5516"]},
+                {pattern: "0127, 0013, 7700 - These numbers group with each other", numbers: []},
+                {pattern: "Group 1", numbers: ["7709", "7707", "7220", "2200", "4990", "4440"]},
+                {pattern: "Group 2", numbers: ["9909", "4990", "4409", "7990"]},
+                {pattern: "Group 3", numbers: ["1300", "9000", "9900", "9990"]},
+                {pattern: "Group 4", numbers: ["5500", "1730", "0037", "8700"]},
+                {pattern: "Group 5", numbers: ["1200", "6900", "3330", "3000"]},
+                {pattern: "Group 6", numbers: ["1200", "1800", "1880"]},
+                {pattern: "6801 and 1200", numbers: []},
+                {pattern: "2570 and 1990", numbers: []},
+                {pattern: "2260, 7120, 2660, 7550", numbers: []},
+                {pattern: "1500, 8585, 0000", numbers: []},
+                {pattern: "1099, 4099, 7099, 0099", numbers: []},
+                {pattern: "0014, 0114, 1440", numbers: []},
+                {pattern: "3055, 6088, 9033, 9066", numbers: []},
+                {pattern: "4709, 6470, 8750", numbers: []},
+                {pattern: "7474, 6464, 4848, 8444", numbers: []},
+                {pattern: "0258, 1500, 3700, 4500", numbers: []},
+                {pattern: "6770, 8073, 2880, 4990, 2770", numbers: []},
+                {pattern: "2444, 1112, 1544, 1778", numbers: []},
+                {pattern: "2555, 2222, 1259, 2249, 5588", numbers: []},
+                {pattern: "2447, 0123, 0012, 1239", numbers: []},
+                {pattern: "8869, 9222, 1239, 0122, 5559, 5568", numbers: []},
+                {pattern: "2300, 5000, 3688, 5666", numbers: []},
+                {pattern: "9066, 6630, 6634, 4438, 8662, 8882, 0037", numbers: []},
+                {pattern: "1250, 9330, 0330, 0333, 5503, 3305, 0003, 1440", numbers: []},
+                {pattern: "5550, 4848, 2000, 5959, 6770, 2880, 1150, 1130, 1136", numbers: []}
+            ]
+        };
+
+        // Generate all unique permutations of a string
+        function getPermutations(str) {
+            if (str.length <= 1) return [str];
+            
+            const permutations = new Set();
+            
+            for (let i = 0; i < str.length; i++) {
+                const char = str[i];
+                const remainingChars = str.slice(0, i) + str.slice(i + 1);
+                const remainingPermutations = getPermutations(remainingChars);
+                
+                for (const perm of remainingPermutations) {
+                    permutations.add(char + perm);
+                }
+            }
+            
+            return Array.from(permutations);
+        }
+
+        // Count unique digits in a number
+        function countUniqueDigits(str) {
+            return new Set(str.split('')).size;
+        }
+
+        // Get descriptive label for the permutation type
+        function getPermutationType(input) {
+            const uniqueDigits = countUniqueDigits(input);
+            const length = input.length;
+            
+            if (length === 3) {
+                if (uniqueDigits === 1) return "1-Way (All same digits)";
+                if (uniqueDigits === 2) return "3-Way (Two same digits)";
+                if (uniqueDigits === 3) return "6-Way (All different digits)";
+            } else if (length === 4) {
+                if (uniqueDigits === 1) return "1-Way (All same digits)";
+                if (uniqueDigits === 2) {
+                    // Check if it's 4-way or 6-way or 12-way
+                    const counts = {};
+                    for (let char of input) {
+                        counts[char] = (counts[char] || 0) + 1;
+                    }
+                    const values = Object.values(counts).sort();
+                    if (values.join('') === '13') return "4-Way (Three same digits)";
+                    if (values.join('') === '22') return "6-Way (Two pairs)";
+                }
+                if (uniqueDigits === 3) return "12-Way (One pair, two different)";
+                if (uniqueDigits === 4) return "24-Way (All different digits)";
+            }
+            
+            return "Multiple combinations";
+        }
+
+        // Initialize the page
+        function init() {
+            renderTripleTriggers();
+            renderPick3FollowUp();
+            renderPick4Sets();
+            renderAllData();
+        }
+
+        function renderTripleTriggers() {
+            const container = document.getElementById('tripleTriggersContent');
+            let html = '';
+            
+            for (const [trigger, numbers] of Object.entries(lotteryData.tripleTrigers)) {
+                html += `
+                    <div class="result-card">
+                        <h3>💎 ${trigger}</h3>
+                        <div class="number-grid">
+                            ${numbers.map(num => `<span class="number-badge">${num}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function renderPick3FollowUp() {
+            const container = document.getElementById('pick3FollowupContent');
+            let html = '';
+            
+            lotteryData.pick3FollowUp.forEach(item => {
+                html += `
+                    <div class="result-card">
+                        <h3>💎 ${item.trigger}</h3>
+                        <div class="number-grid">
+                            ${item.followUp.map(num => `<span class="number-badge">${num}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderPick4Sets() {
+            const container = document.getElementById('pick4SetsContent');
+            let html = '';
+            
+            lotteryData.pick4Sets.forEach(item => {
+                html += `
+                    <div class="result-card">
+                        <h3>${item.pattern}</h3>
+                        ${item.numbers.length > 0 ? `
+                            <div class="number-grid">
+                                ${item.numbers.map(num => `<span class="number-badge">${num}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderAllData() {
+            const container = document.getElementById('allDataContent');
+            let html = '';
+            
+            // Triple Triggers
+            for (const [trigger, numbers] of Object.entries(lotteryData.tripleTrigers)) {
+                html += `
+                    <tr>
+                        <td>Triple Triggers</td>
+                        <td><strong>${trigger}</strong></td>
+                        <td>${numbers.join(', ')}</td>
+                    </tr>
+                `;
+            }
+            
+            // Pick 3 Follow-Up
+            lotteryData.pick3FollowUp.forEach(item => {
+                html += `
+                    <tr>
+                        <td>Pick 3 Follow-Up</td>
+                        <td><strong>${item.trigger}</strong></td>
+                        <td>${item.followUp.join(', ')}</td>
+                    </tr>
+                `;
+            });
+            
+            // Pick 4 Sets
+            lotteryData.pick4Sets.forEach(item => {
+                html += `
+                    <tr>
+                        <td>Pick 4 Sets</td>
+                        <td>${item.pattern}</td>
+                        <td>${item.numbers.join(', ')}</td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function searchNumber() {
+            const searchInput = document.getElementById('searchInput').value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!searchInput) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            
+            const inputLength = searchInput.length;
+            
+            // Generate all permutations of the input
+            const permutations = getPermutations(searchInput);
+            const permType = getPermutationType(searchInput);
+            
+            let results = [];
+            let searchedPerms = new Set();
+            
+            // Search for each permutation
+            permutations.forEach(perm => {
+                // Only search Pick 3 data for 3-digit numbers
+                if (inputLength === 3) {
+                    // Search in Triple Triggers
+                    for (const [trigger, numbers] of Object.entries(lotteryData.tripleTrigers)) {
+                        if (trigger === perm) {
+                            results.push({
+                                category: 'Triple Triggers',
+                                trigger: trigger,
+                                numbers: numbers, // Show ALL numbers from the set
+                                matchType: 'trigger',
+                                searchedPerm: perm
+                            });
+                            searchedPerms.add(perm);
+                        }
+                    }
+                    
+                    // Search in Pick 3 Follow-Up - check both trigger and followUp
+                    lotteryData.pick3FollowUp.forEach(item => {
+                        if (item.trigger === perm) {
+                            // This permutation IS the trigger
+                            results.push({
+                                category: 'Pick 3 Follow-Up',
+                                trigger: item.trigger,
+                                numbers: item.followUp, // Show ALL follow-up numbers
+                                matchType: 'trigger',
+                                searchedPerm: perm
+                            });
+                            searchedPerms.add(perm);
+                        } else if (item.followUp.some(num => num === perm)) {
+                            // This permutation is IN the follow-up list
+                            results.push({
+                                category: 'Pick 3 Follow-Up',
+                                trigger: item.trigger,
+                                numbers: item.followUp, // Show ALL numbers in this set
+                                matchType: 'result',
+                                searchedPerm: perm,
+                                matchedNumber: perm
+                            });
+                            searchedPerms.add(perm);
+                        }
+                    });
+                }
+                
+                // Only search Pick 4 data for 4-digit numbers
+                if (inputLength === 4) {
+                    lotteryData.pick4Sets.forEach(item => {
+                        const patternHasPerm = item.pattern.includes(perm);
+                        const numbersHasPerm = item.numbers.some(num => num === perm);
+                        
+                        if (patternHasPerm || numbersHasPerm) {
+                            results.push({
+                                category: 'Pick 4 Sets',
+                                trigger: item.pattern,
+                                numbers: item.numbers, // Show ALL numbers in the set
+                                matchType: numbersHasPerm ? 'number_match' : 'pattern',
+                                searchedPerm: perm,
+                                matchedNumber: perm
+                            });
+                            searchedPerms.add(perm);
+                        }
+                    });
+                }
+            });
+            
+            // Display results
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        No results found for "${searchInput}" or any of its combinations in ${inputLength === 3 ? 'Pick 3' : 'Pick 4'} sets
+                    </div>
+                `;
+            } else {
+                let html = '<div style="margin-top: 20px;">';
+                
+                // Show permutations info box
+                html += `
+                    <div class="result-card" style="background: linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 100%); border-left-color: #A8A8A8;">
+                        <h3 style="color: #C0C0C0;">💎 Searching: ${searchInput} (${permType}) - ${inputLength === 3 ? 'Pick 3' : 'Pick 4'}</h3>
+                        <p style="color: #ccc; margin-bottom: 10px;">All ${permutations.length} combination(s) checked:</p>
+                        <div class="number-grid">
+                            ${permutations.map(perm => {
+                                const isFound = searchedPerms.has(perm);
+                                return `<span class="number-badge" style="${isFound ? 'background: linear-gradient(145deg, #28a745 0%, #20c997 100%); color: white; border-color: #28a745;' : 'opacity: 0.4;'}">${perm}</span>`;
+                            }).join('')}
+                        </div>
+                        <p class="info-text" style="color: #C0C0C0; margin-top: 15px;">
+                            ✓ Green = Found in database | Gray = Not found
+                        </p>
+                    </div>
+                `;
+                
+                // Group results by searched permutation
+                const resultsByPerm = {};
+                results.forEach(result => {
+                    if (!resultsByPerm[result.searchedPerm]) {
+                        resultsByPerm[result.searchedPerm] = [];
+                    }
+                    resultsByPerm[result.searchedPerm].push(result);
+                });
+                
+                // Display results grouped by permutation
+                for (const [perm, permResults] of Object.entries(resultsByPerm)) {
+                    html += `<h3 style="color: #C0C0C0; margin: 30px 0 15px 0; font-family: 'Cinzel', serif;">💎 Results for: ${perm}</h3>`;
+                    
+                    permResults.forEach(result => {
+                        const matchExplanation = result.matchType === 'trigger' 
+                            ? `💎 <strong>${perm}</strong> is the TRIGGER - All these numbers may follow` 
+                            : result.matchType === 'result' 
+                            ? `📊 <strong>${perm}</strong> appears in this follow-up set - When ${result.trigger} shows, these follow`
+                            : result.matchType === 'number_match'
+                            ? `💎 <strong>${perm}</strong> is in this Pick 4 set - These numbers play together`
+                            : `📊 Pattern match found`;
+                        
+                        html += `
+                            <div class="result-card">
+                                <h3>${result.category} - ${result.trigger}</h3>
+                                <div class="number-grid">
+                                    ${result.numbers.map(num => {
+                                        const isMatch = num === perm;
+                                        return `<span class="number-badge" style="${isMatch ? 'background: linear-gradient(145deg, #C0C0C0 0%, #A8A8A8 100%); color: #0a0a0a; transform: scale(1.1);' : ''}">${num}</span>`;
+                                    }).join('')}
+                                </div>
+                                <p class="info-text" style="color: #ccc;">${matchExplanation}</p>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += '</div>';
+                resultsContainer.innerHTML = html;
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Allow Enter key to search
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+            
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchNumber();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
